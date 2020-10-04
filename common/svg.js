@@ -37,6 +37,26 @@ export const Directory = (props) => {
   );
 };
 
+export const ResizeHandle = (props) => {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      height={props.height}
+      style={props.style}
+    >
+      <path d="M21 3L3 21" />
+      <path d="M21 11L11 21" />
+      <path d="M21 19L19 21" />
+    </svg>
+  );
+};
+
 export const PlusCircle = (props) => {
   return (
     <svg

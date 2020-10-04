@@ -8,6 +8,7 @@ import * as Actions from "~/common/actions";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import { css } from "@emotion/react";
 import { LoaderSpinner } from "~/components/system/components/Loaders";
+import { SlateLayout } from "~/components/core/SlateLayout";
 import { dispatchCustomEvent } from "~/common/custom-events";
 
 import SlateMediaObjectPreview from "~/components/core/SlateMediaObjectPreview";
@@ -109,17 +110,18 @@ export const generateLayout = (items) => {
   }
 
   return items.map((item, i) => {
-    var y = Math.ceil(Math.random() * 4) + 1;
+    // var y = Math.ceil(Math.random() * 4) + 1;
 
     return {
-      x: (i * 2) % 10,
-      y: 0,
-      w: 2,
-      h: 2,
-      minW: 2,
-      minH: 2,
-      // NOTE(jim): Library quirk thats required.
-      i: i.toString(),
+      x: (i % 5) * 200,
+      y: Math.floor(i / 5) * 200,
+      scale: 1,
+      // w: 2,
+      // h: 2,
+      // minW: 2,
+      // minH: 2,
+      // // NOTE(jim): Library quirk thats required.
+      // i: i.toString(),
     };
   });
 };
@@ -178,6 +180,19 @@ export default class Slate extends React.Component {
   };
 
   generateDOM = () => {
+    return this.props.items.map((data) => (
+      <div style={{ maxHeight: 200, maxWidth: 200 }}>
+        <SlateMediaObjectPreview
+          charCap={70}
+          type={data.type}
+          url={data.url}
+          title={data.title || data.name}
+          style={{ height: 200, width: 200 }}
+          imageStyle={{ maxHeight: "inherit" }}
+        />
+      </div>
+    ));
+
     return this.props.layouts.lg.map((each, index) => {
       const data = this.props.items[each.i];
       if (!data) {
@@ -186,13 +201,12 @@ export default class Slate extends React.Component {
 
       return (
         <div
-          key={index}
-          css={STYLES_ITEM}
-          onClick={
-            Validations.onMobile()
-              ? (e) => this._handleSelect(e, index)
-              : () => {}
-          }
+          style={{
+            width: 200,
+            height: 200,
+            border: "1px solid red",
+            position: "relative",
+          }}
         >
           <SlateMediaObjectPreview
             charCap={70}
@@ -200,29 +214,48 @@ export default class Slate extends React.Component {
             url={data.url}
             title={data.title || data.name}
           />
-          <span css={STYLES_MOBILE_HIDDEN}>
-            <figure css={STYLES_BUTTON}>
-              <CircleButtonGray
-                style={{ margin: 8, cursor: "pointer" }}
-                onMouseUp={(e) => this._handleSelect(e, index)}
-                onTouchEnd={(e) => this._handleSelect(e, index)}
-              >
-                <SVG.Eye height="16px" />
-              </CircleButtonGray>
-
-              {data.deeplink ? (
-                <CircleButtonGray
-                  style={{ margin: 8 }}
-                  onMouseUp={(e) => this._handleDeepLink(e, data)}
-                  onTouchEnd={(e) => this._handleDeepLink(e, data)}
-                >
-                  <SVG.DeepLink height="16px" />
-                </CircleButtonGray>
-              ) : null}
-            </figure>
-          </span>
         </div>
       );
+
+      // return (
+      //   <div
+      //     key={index}
+      //     css={STYLES_ITEM}
+      //     onClick={
+      //       Validations.onMobile()
+      //         ? (e) => this._handleSelect(e, index)
+      //         : () => {}
+      //     }
+      //   >
+      //     <SlateMediaObjectPreview
+      //       charCap={70}
+      //       type={data.type}
+      //       url={data.url}
+      //       title={data.title || data.name}
+      //     />
+      //     <span css={STYLES_MOBILE_HIDDEN}>
+      //       <figure css={STYLES_BUTTON}>
+      //         <CircleButtonGray
+      //           style={{ margin: 8, cursor: "pointer" }}
+      //           onMouseUp={(e) => this._handleSelect(e, index)}
+      //           onTouchEnd={(e) => this._handleSelect(e, index)}
+      //         >
+      //           <SVG.Eye height="16px" />
+      //         </CircleButtonGray>
+
+      //         {data.deeplink ? (
+      //           <CircleButtonGray
+      //             style={{ margin: 8 }}
+      //             onMouseUp={(e) => this._handleDeepLink(e, data)}
+      //             onTouchEnd={(e) => this._handleDeepLink(e, data)}
+      //           >
+      //             <SVG.DeepLink height="16px" />
+      //           </CircleButtonGray>
+      //         ) : null}
+      //       </figure>
+      //     </span>
+      //   </div>
+      // );
     });
   };
 
@@ -239,7 +272,8 @@ export default class Slate extends React.Component {
   render() {
     return (
       <div css={STYLES_CONTAINER}>
-        <ResponsiveReactGridLayout
+        <SlateLayout editing={true} items={this.props.items}></SlateLayout>
+        {/* <ResponsiveReactGridLayout
           columns={COLUMN_MAP}
           layouts={this.props.layouts}
           isDraggable={!!this.props.editing}
@@ -253,7 +287,7 @@ export default class Slate extends React.Component {
           margin={[24, 24]}
         >
           {this.generateDOM()}
-        </ResponsiveReactGridLayout>
+        </ResponsiveReactGridLayout> */}
 
         {this.props.editing ? (
           <div css={STYLES_ACTIONS}>

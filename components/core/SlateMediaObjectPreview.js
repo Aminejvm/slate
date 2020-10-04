@@ -17,7 +17,6 @@ const STYLES_IMAGE = css`
   background-color: ${Constants.system.foreground};
   display: block;
   max-width: 100%;
-  max-height: 100%;
   pointer-events: none;
   transition: 200ms ease all;
 `;
@@ -69,7 +68,13 @@ export default class SlateMediaObjectPreview extends React.Component {
           />
         );
       }
-      return <img css={STYLES_IMAGE} style={this.props.imageStyle} src={url} />;
+      return (
+        <img
+          css={STYLES_IMAGE}
+          style={{ maxHeight: "100%", ...this.props.imageStyle }}
+          src={url}
+        />
+      );
     }
 
     let element = <FileTypeIcon type={this.props.type} height="24px" />;
