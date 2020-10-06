@@ -42,6 +42,7 @@ export const system = {
 
 export const zindex = {
   navigation: 1,
+  body: 2,
   sidebar: 5,
   alert: 3,
   header: 4,
