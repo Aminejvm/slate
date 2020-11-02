@@ -52,6 +52,27 @@ const typeMap = {
   "video/quicktime": "video/mp4",
 };
 
+function includeHTML(elm, html, url) {
+  elm.innerHTML = html;
+  Array.from(elm.querySelectorAll("script")).forEach((oldScript) => {
+    console.log(oldScript);
+    const newScript = document.createElement("script");
+    Array.from(oldScript.attributes).forEach((attr) =>
+      newScript.setAttribute(attr.name, url + "/" + attr.value)
+    );
+    newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+    oldScript.parentNode.replaceChild(newScript, oldScript);
+  });
+}
+function fetchHtmlData(url) {
+  fetch(url + "/index.html")
+    .then((res) => res.text())
+    .then((data) => {
+      const includeContainer = document.querySelector("#testunity");
+      includeHTML(includeContainer, data, url);
+    });
+}
+
 export default class SlateMediaObject extends React.Component {
   render() {
     const name = `${this.props.data.name}`;
@@ -61,7 +82,18 @@ export default class SlateMediaObject extends React.Component {
     const type = this.props.data.type ? this.props.data.type : "LEGACY_NO_TYPE";
     const playType = typeMap[type] ? typeMap[type] : type;
 
+    console.log({ props: this.props.data });
+
     let element = <div css={STYLES_FAILURE}>No Preview</div>;
+
+    if (type.startsWith("application/zip")) {
+      return (
+        <div>
+          <div id="testunity"></div>
+          <button onClick={() => fetchHtmlData(url)}>load html</button>
+        </div>
+      );
+    }
 
     if (type.startsWith("application/pdf")) {
       return <object css={STYLES_OBJECT} data={url} type={type} />;
