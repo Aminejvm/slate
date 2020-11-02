@@ -79,6 +79,7 @@
     "regenerator-runtime": "^0.13.7",
     "three": "^0.108.0",
     "universal-cookie": "^4.0.3",
+    "unzipper": "^0.10.11",
     "uuid": "^8.0.0",
     "ws": "^7.3.1"
   },

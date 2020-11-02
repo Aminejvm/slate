@@ -48,6 +48,9 @@ export const upload = async ({ file, context, bucketName, routes }) => {
     return null;
   }
 
+  const isFileZip =
+    file.type.startsWith("application/zip") || file.type.startsWith("application/x-zip-compressed");
+
   // TODO(jim): Put this somewhere else to handle conversion cases.
   if (file.type.startsWith("image/heic")) {
     const converted = await HEIC2ANY({
@@ -121,27 +124,31 @@ export const upload = async ({ file, context, bucketName, routes }) => {
       XHR.send(formData);
     });
 
-  const storageDealRoute =
-    routes && routes.storageDealUpload ? `${routes.storageDealUpload}/api/deal/` : null;
-  const generalRoute = routes && routes.upload ? `${routes.upload}/api/data/` : null;
+  // const storageDealRoute =
+  //   routes && routes.storageDealUpload ? `${routes.storageDealUpload}/api/deal/` : null;
+  // const generalRoute = routes && routes.upload ? `${routes.upload}/api/data/` : null;
 
-  if (!storageDealRoute || !generalRoute) {
-    dispatchCustomEvent({
-      name: "create-alert",
-      detail: {
-        alert: { message: "We could not find our upload server." },
-      },
-    });
+  // if (!storageDealRoute || !generalRoute) {
+  //   dispatchCustomEvent({
+  //     name: "create-alert",
+  //     detail: {
+  //       alert: { message: "We could not find our upload server." },
+  //     },
+  //   });
 
-    return {
-      decorator: "NO_UPLOAD_RESOURCE_URI_ATTACHED",
-      error: true,
-    };
-  }
+  //   return {
+  //     decorator: "NO_UPLOAD_RESOURCE_URI_ATTACHED",
+  //     error: true,
+  //   };
+  // }
 
   let res;
-  if (bucketName && bucketName === STAGING_DEAL_BUCKET) {
-    res = await _privateUploadMethod(`${storageDealRoute}${file.name}`, file);
+
+  // TODO(jim): Make this smarter.
+  if (isFileZip) {
+    res = await _privateUploadMethod(`/api/data/zip/${file.name}`, file);
+  } else if (bucketName && bucketName === STAGING_DEAL_BUCKET) {
+    res = await _privateUploadMethod(`/api/data/deal/${file.name}`, file);
   } else {
     res = await _privateUploadMethod(`${generalRoute}${file.name}`, file);
   }
@@ -167,6 +174,8 @@ export const upload = async ({ file, context, bucketName, routes }) => {
 
     return !res ? { decorator: "NO_RESPONSE_FROM_SERVER", error: true } : res;
   }
+
+  console.log("RES", res);
 
   if (res.data.data.type.startsWith("image/")) {
     let url = `${Constants.gateways.ipfs}/${res.data.data.cid}`;
@@ -213,6 +222,7 @@ export const uploadToSlate = async ({ responses, slate }) => {
       skipped = addResponse.skipped;
     }
   }
+
   let message = Strings.formatAsUploadMessage(added, skipped, true);
   dispatchCustomEvent({
     name: "create-alert",
